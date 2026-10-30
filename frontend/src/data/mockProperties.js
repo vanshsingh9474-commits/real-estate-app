@@ -1,0 +1,42 @@
+export const mockProperties = [
+  {
+    id: 1,
+    title: "3 BHK Luxury Apartment",
+    slug: "3-bhk-luxury-apartment",
+    price: 8500000,
+    propertyType: "Apartment",
+    purpose: "Sale",
+    city: "Delhi",
+    location: "Dwarka",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 1450,
+    areaUnit: "sq.ft",
+    parking: true,
+    furnished: "Semi Furnished",
+    featured: true,
+    status: "Available",
+    images: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800"],
+    description: "Spacious 3 BHK luxury apartment located in the heart of Dwarka with modern amenities."
+  },
+  {
+    id: 2,
+    title: "Modern 4 BHK Villa with Garden",
+    slug: "modern-4-bhk-villa",
+    price: 18000000,
+    propertyType: "Villa",
+    purpose: "Sale",
+    city: "Delhi",
+    location: "Vasant Kunj",
+    bedrooms: 4,
+    bathrooms: 4,
+    area: 3200,
+    areaUnit: "sq.ft",
+    parking: true,
+    furnished: "Fully Furnished",
+    featured: true,
+    status: "Available",
+    images: ["https://images.unsplash.com/photo-1613977257363-707ba9348227?w=800"],
+    description: "Independent luxury villa featuring a private garden, modular kitchen, and smart home automation."
+  }
+];
