@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Building, 
@@ -10,6 +10,16 @@ import {
 } from 'lucide-react';
 
 const AdminLayout = () => {
+  const navigate = useNavigate(); // <-- Yahan add karein
+
+  const handleLogout = () => {
+    // Agar koi token ya user session save hai toh use clear kar dein:
+    localStorage.removeItem("token"); // (Agar koi aur key ho toh wo likhein, ya localStorage.clear())
+    
+    // Home page par redirect karein
+    navigate("/");
+  };
+
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Properties', path: '/admin/properties', icon: Building },
@@ -54,13 +64,16 @@ const AdminLayout = () => {
           </nav>
         </div>
 
-        {/* Logout Button */}
-        <div className="border-t border-slate-800 pt-4">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-slate-800 transition-colors">
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
-        </div>
+      {/* Logout Button */}
+<div className="border-t border-slate-800 pt-4">
+  <button 
+    onClick={handleLogout} // <-- Yeh line add karni hai
+    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-slate-800 transition-colors"
+  >
+    <LogOut className="w-5 h-5 text-red-500" />
+    Logout
+  </button>
+</div>
       </aside>
 
       {/* Main Content Area */}

@@ -1,10 +1,27 @@
-import React, { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { mockProperties } from "../data/mockProperties";
+import React, { useState, useEffect, useMemo } from "react";
+// mockProperties wala import yahan se hata dein
 import PropertyCard from "../components/PropertyCard";
+
 
 export default function Properties() {
   const [searchParams] = useSearchParams();
+  const [properties, setProperties] = useState([]); // <-- Real properties state
+  const [loading, setLoading] = useState(true);     // <-- Loading state
+
+  // Backend se real data fetch karne ke liye
+  useEffect(() => {
+    fetch("http://localhost:5000/api/properties")
+      .then((res) => res.json())
+      .then((data) => {
+        setProperties(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching properties:", err);
+        setLoading(false);
+      });
+  }, []);
 
   // Read search query params dynamically
   const purposeParam = searchParams.get("purpose");
@@ -16,16 +33,18 @@ export default function Properties() {
 
   // Robust Filter Logic
   const filteredProperties = useMemo(() => {
-    return mockProperties.filter((item) => {
+    return properties.filter((item) => {
+      console.log("Checking item:", item);
       // 1. Purpose Filter (Sale / Rent)
-      if (purposeParam && item.purpose && item.purpose.toLowerCase() !== purposeParam.toLowerCase()) {
-        return false;
-      }
+        const itemPurpose = item.type || item.purpose;
+        if (purposeParam && itemPurpose && itemPurpose.toLowerCase() !== purposeParam.toLowerCase()) {
+          return false;
+        }
 
       // 2. Property Type Filter (Villa / Apartment / etc)
-      if (typeParam && item.propertyType && item.propertyType.toLowerCase() !== typeParam.toLowerCase()) {
-        return false;
-      }
+      if (typeParam && item.title && !item.title.toLowerCase().includes(typeParam.toLowerCase())) {
+  return false;
+}
 
       // 3. Location / City Match (Handles commas and spaces)
       if (locationParam) {
@@ -57,8 +76,9 @@ export default function Properties() {
 
       return true;
     });
-  }, [purposeParam, locationParam, typeParam, minPriceParam, maxPriceParam]);
+  }, [properties, purposeParam, locationParam, typeParam, minPriceParam, maxPriceParam]);
 
+  
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[60vh]">
       {/* Fixed Header String Interpolation */}

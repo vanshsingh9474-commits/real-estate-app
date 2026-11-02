@@ -31,6 +31,18 @@ const Property = sequelize.define('Property', {
     type: DataTypes.ENUM('Sale', 'Rent'),
     allowNull: false
   },
+  bedrooms: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  bathrooms: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  area: {
+    type: DataTypes.FLOAT,
+    allowNull: true,
+  },
   images: {
     type: DataTypes.TEXT, // JSON string ya comma-separated image paths ke liye
     allowNull: true

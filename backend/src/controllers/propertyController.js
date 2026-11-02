@@ -29,10 +29,34 @@ exports.getPropertyById = async (req, res) => {
 // 3. Nayi property add karne ke liye
 exports.createProperty = async (req, res) => {
     try {
-        const { title, description, price, city, address, type, categoryId, images } = req.body;
-        const newProperty = await Property.create({
-            title, description, price, city, address, type, categoryId, images
-        });
+           const imagePaths = req.files ? req.files.map(file => file.path.replace(/\\/g, "/")) : [];
+
+    const { 
+      title, 
+      description, 
+      price, 
+      city, 
+      address, 
+      type, 
+      categoryId, 
+      bedrooms, 
+      bathrooms, 
+      area 
+    } = req.body;
+
+    const newProperty = await Property.create({
+      title,
+      description,
+      price,
+      city,
+      address,
+      type,
+      categoryId,
+      bedrooms,
+      bathrooms,
+      area,
+      images: JSON.stringify(imagePaths) // Yahan files ka array string ban kar save hoga
+    });
         res.status(201).json({
             message: 'Property created successfully!',
             property: newProperty

@@ -1,11 +1,23 @@
-import { mockProperties } from "../data/mockProperties";
 import PropertyCard from "../components/PropertyCard";
 import SearchBox from "../components/SearchBox";
 import CategorySection from "../components/CategorySection";
 import Testimonials from "../components/Testimonials";
 import { Building, ShieldCheck, Zap, BadgeIndianRupee } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 
 export default function Home() {
+  const [properties, setProperties] = useState([]);
+
+  useEffect(() => {
+    // API se properties fetching (sirf 3 items slice karke set honge)
+    axios.get("http://localhost:5000/api/properties")
+      .then((res) => {
+        setProperties(res.data.slice(0, 3)); // Sirf 3 properties Home page par dikhane ke liye
+      })
+      .catch((err) => console.error("Error fetching properties:", err));
+  }, []);
     const features = [
   {
     id: 1,
@@ -66,7 +78,7 @@ export default function Home() {
           Featured Properties
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockProperties.map((prop) => (
+          {properties.map((prop) => (
             <PropertyCard key={prop.id} property={prop} />
           ))}
         </div>

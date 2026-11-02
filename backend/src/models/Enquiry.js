@@ -15,6 +15,10 @@ const Enquiry = sequelize.define('Enquiry', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  propertyId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   phone: {
     type: DataTypes.STRING,
     allowNull: false

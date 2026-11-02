@@ -1,16 +1,115 @@
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { mockProperties } from "../data/mockProperties";
+
 
 export default function PropertyDetails() {
-  const { slug } = useParams();
-  const property = mockProperties.find((p) => p.slug === slug);
+  const { id } = useParams(); 
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  phone: "",
+  message: "I am interested in this property."
+});
+
+ const handleSendMessage = (e) => {
+    e.preventDefault();
+    
+    fetch(`http://localhost:5000/api/enquiries`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        propertyId: property.id || property._id,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        alert("Enquiry sent successfully!");
+        setFormData({ name: "", email: "", phone: "", message: "" });
+      }
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      alert("Failed to send enquiry.");
+    });
+  };
+
+  useEffect(() => {
+    
+    fetch(`http://localhost:5000/api/properties/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProperty(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching property details:", err);
+        setLoading(false);
+      });
+  }, [id]);
+
 
   if (!property) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <h2 className="text-2xl font-bold text-gray-800">Property Not Found</h2>
+        <Link to="/properties" className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg">
+          Back to Properties
+        </Link>
+      </div>
+    );
+  }
+
+  // 👉 imageUrl ka logic 'if (!property)' ke bahar yahan hona chahiye:
+  let imageUrl = "https://via.placeholder.com/800x400?text=No+Image";
+  try {
+    if (Array.isArray(property.images)) {
+      imageUrl = property.images[0];
+    } else if (typeof property.images === "string") {
+      const parsed = JSON.parse(property.images);
+      imageUrl = Array.isArray(parsed) ? parsed[0] : property.images;
+    }
+  } catch {
+    imageUrl = property.images || imageUrl;
+  }
+
+  if (imageUrl && !imageUrl.startsWith("http") && !imageUrl.startsWith("/")) {
+    imageUrl = `http://localhost:5000/${imageUrl}`;
+  }
+  
+  if (!property) {
+    let imageUrl = "https://via.placeholder.com/800x400?text=No+Image";
+  try {
+    if (Array.isArray(property.images)) {
+      imageUrl = property.images[0];
+    } else if (typeof property.images === "string") {
+      const parsed = JSON.parse(property.images);
+      imageUrl = Array.isArray(parsed) ? parsed[0] : property.images;
+    }
+  } catch {
+    imageUrl = property.images || imageUrl;
+  }
+
+  if (imageUrl && !imageUrl.startsWith("http") && !imageUrl.startsWith("/")) {
+    imageUrl = `http://localhost:5000/${imageUrl}`;
+  }
+ 
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">Property Not Found</h2>
         <p className="text-gray-500 mt-2">The requested property details are unavailable.</p>
-        <Link to="/properties" className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+        <Link to="/properties" className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg">
           Back to Properties
         </Link>
       </div>
@@ -30,13 +129,13 @@ export default function PropertyDetails() {
 <div className="relative w-full h-80 md:h-100 rounded-2xl overflow-hidden shadow-md mb-8 bg-gray-900 flex items-center justify-center">
   {/* Blurred background image */}
   <img
-    src={property.images[0]}
+    src={imageUrl}
     alt={property.title}
     className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-105"
   />
   {/* Main crisp image inside */}
   <img
-    src={property.images[0]}
+    src={imageUrl}
     alt={property.title}
     className="relative z-10 max-h-full max-w-full object-contain"
   />
@@ -95,25 +194,59 @@ export default function PropertyDetails() {
         </div>
 
         {/* Right Column: Contact & Action Panel */}
-        <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sticky top-20">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Contact Owner / Agent</h3>
-            <p className="text-xs text-gray-500 mb-6">Send an inquiry to get response from the seller.</p>
-            
-            <button
-              onClick={() => alert("Inquiry sent successfully!")}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors shadow-sm mb-3 text-sm"
-            >
-              Send Message
-            </button>
-            <button
-              onClick={() => alert("Phone number: +91 98765 43210")}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-3 rounded-xl transition-colors text-sm"
-            >
-              Show Contact Number
-            </button>
-          </div>
-        </div>
+<div className="lg:col-span-1">
+  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sticky top-20">
+    <h3 className="text-lg font-bold text-gray-800 mb-2">Contact Owner / Agent</h3>
+    <p className="text-xs text-gray-500 mb-4">Send an inquiry to get response from the seller.</p>
+    
+    <form onSubmit={handleSendMessage} className="space-y-3">
+      <input
+        type="text"
+        placeholder="Your Name"
+        required
+        value={formData.name}
+        onChange={(e) => setFormData({...formData, name: e.target.value})}
+        className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      />
+      <input
+        type="email"
+        placeholder="Your Email"
+        required
+        value={formData.email}
+        onChange={(e) => setFormData({...formData, email: e.target.value})}
+        className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      />
+      <input
+        type="text"
+        placeholder="Phone Number"
+        required
+        value={formData.phone}
+        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+        className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      />
+      <textarea
+        placeholder="Message"
+        rows="2"
+        value={formData.message}
+        onChange={(e) => setFormData({...formData, message: e.target.value})}
+        className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      />
+      <button
+        type="submit"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl text-sm"
+      >
+        Send Message
+      </button>
+    </form>
+
+    <button
+      onClick={() => alert("Phone number: +91 98765 43210")}
+      className="w-full mt-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 rounded-xl text-sm"
+    >
+      Show Contact Number
+    </button>
+  </div>
+</div>
       </div>
     </div>
   );
